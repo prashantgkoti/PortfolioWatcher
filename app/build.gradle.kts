@@ -1,9 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
-    // kotlin.android is NOT applied here - AGP 9.2.1 has Kotlin built-in
+    // kotlin.android NOT applied - AGP 9.2.1 has Kotlin built-in
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt.android)
+    // Hilt removed - incompatible with AGP 9.2.1, add back when compatible version releases
 }
 
 android {
@@ -63,9 +63,11 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
 
     // ===== HILT (Dependency Injection) =====
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.android.compiler)
-    implementation(libs.hilt.navigation.compose)
+    // Temporarily removed - Hilt incompatible with AGP 9.2.1
+    // Will be added back when a compatible Hilt version is released
+    // implementation(libs.hilt.android)
+    // ksp(libs.hilt.android.compiler)
+    // implementation(libs.hilt.navigation.compose)
 
     // ===== ROOM (Local Database) =====
     implementation(libs.androidx.room.runtime)
