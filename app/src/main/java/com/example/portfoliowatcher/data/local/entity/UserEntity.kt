@@ -42,6 +42,7 @@ data class UserEntity(
     // @PrimaryKey marks this as the unique identifier for each row
     // autoGenerate = false means we provide the ID (from Firebase Auth)
     @PrimaryKey
+    @ColumnInfo(name = "user_id")
     val userId: String,
 
     // Column for email - must be unique (can't have two users with same email)
