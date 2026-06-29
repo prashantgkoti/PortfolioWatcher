@@ -1,10 +1,10 @@
 [versions]
 agp = "9.2.1"
-kotlin = "1.9.25"
-ksp = "1.9.25-1.0.20"
+kotlin = "2.0.21"
+ksp = "2.0.21-1.0.28"
 coreKtx = "1.13.1"
 activityCompose = "1.9.2"
-composeBom = "2023.10.01"
+composeBom = "2024.11.00"
 lifecycleRuntimeKtx = "2.8.7"
 lifecycleViewmodelCompose = "2.8.7"
 navigationCompose = "2.8.8"
@@ -13,9 +13,8 @@ firebaseBom = "33.7.0"
 retrofit = "2.11.0"
 okhttp = "4.12.0"
 kotlinxSerializationJson = "1.7.3"
-kotlinxSerialization = "2.2.10"
-kotlinxCoroutinesCore = "1.8.1"
-hilt = "2.60"
+kotlinxCoroutinesCore = "1.9.0"
+hilt = "2.52"
 hiltNavigationCompose = "1.2.0"
 coilCompose = "2.6.0"
 tinkAndroid = "1.10.0"
@@ -92,5 +91,7 @@ mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "te
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+# Compose Compiler plugin - available in Kotlin 2.0+ (required by AGP 9.x)
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }

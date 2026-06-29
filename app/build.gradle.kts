@@ -1,7 +1,7 @@
 plugins {
-    // android.application (AGP 9.2.1) has built-in Kotlin support
-    // Don't apply kotlin.android separately - it causes conflict
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
 }
@@ -9,13 +9,6 @@ plugins {
 android {
     namespace = "com.example.portfoliowatcher"
     compileSdk = 36
-
-    // Configure Compose for Kotlin 1.9.25
-    // This suppresses the "Compose Compiler plugin required" error
-    composeOptions {
-        // Use embedded Compose compiler from Kotlin 1.9.25
-        kotlinCompilerExtensionVersion = "1.5.8"
-    }
 
     defaultConfig {
         applicationId = "com.example.portfoliowatcher"
@@ -29,14 +22,15 @@ android {
 
     buildTypes {
         release {
-            optimization {
-                enable = false
-            }
+            isMinifyEnabled = false
         }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = "11"
     }
     buildFeatures {
         compose = true
