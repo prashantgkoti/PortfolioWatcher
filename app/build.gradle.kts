@@ -54,6 +54,7 @@ dependencies {
     // ===== VIEWMODEL & LIFECYCLE (State Management) =====
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
 
     // ===== COROUTINES (Async tasks) =====
     implementation(libs.kotlinx.coroutines.core)
@@ -78,6 +79,7 @@ dependencies {
 
     // ===== NETWORKING (Retrofit, OkHttp, Serialization) =====
     implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
     implementation(libs.okhttp)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.retrofit.kotlinx.serialization.converter)
