@@ -49,6 +49,8 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.runtime.livedata)
     implementation(libs.androidx.compose.foundation)
+    // Compose Compiler library (required for Kotlin 1.9.25+ with Compose)
+    implementation(libs.androidx.compose.compiler)
 
     // ===== NAVIGATION (Screen switching) =====
     implementation(libs.androidx.navigation.compose)
