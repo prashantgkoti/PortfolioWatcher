@@ -1,0 +1,49 @@
+# Android specific
+*.apk
+*.ap_
+*.dex
+*.class
+bin/
+gen/
+.gradle/
+build/
+.idea/
+*.iml
+.DS_Store
+local.properties
+
+# Android Studio
+.navigation
+captures/
+.externalNativeBuild
+.cxx
+
+# Gradle
+gradle-app.setting
+!gradle-wrapper.jar
+
+# Signing
+*.jks
+*.keystore
+
+# Built application files
+*.generatedbuildconfig
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+*.swp
+*.swo
+*~
+
+# OSX
+.DS_Store
+
+# Node (if using any Node tools)
+node_modules/
+
+# Test reports
+reports/
