@@ -92,8 +92,5 @@ mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "te
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-# Compose Compiler plugin is part of Kotlin plugin suite (available in 1.5.30+)
-# Required for Kotlin 1.9.25+ when Compose is enabled
-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
