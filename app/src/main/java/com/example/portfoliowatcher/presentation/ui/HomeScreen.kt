@@ -29,7 +29,7 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val vm: HomeViewModel = viewModel(
-        factory = HomeViewModel.Factory(AppDatabase.getInstance(context))
+        factory = HomeViewModel.Factory(AppDatabase.getInstance(context), context)
     )
     val state by vm.uiState.collectAsStateWithLifecycle()
 

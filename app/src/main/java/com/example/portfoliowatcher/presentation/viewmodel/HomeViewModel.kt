@@ -16,7 +16,7 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.UUID
 
-class HomeViewModel(private val db: AppDatabase) : ViewModel() {
+class HomeViewModel(private val db: AppDatabase, private val context: android.content.Context? = null) : ViewModel() {
 
     sealed class UiState {
         object Loading : UiState()
@@ -34,6 +34,7 @@ class HomeViewModel(private val db: AppDatabase) : ViewModel() {
     init {
         ensureLocalUserExists()
         loadPortfolios()
+        refreshNavPrices()
     }
 
     private fun ensureLocalUserExists() {
@@ -47,6 +48,14 @@ class HomeViewModel(private val db: AppDatabase) : ViewModel() {
                     )
                 )
             }
+        }
+    }
+
+    private fun refreshNavPrices() {
+        if (context == null) return
+        viewModelScope.launch {
+            com.example.portfoliowatcher.data.remote.NavRefreshService.refreshIfStale(context)
+            loadPortfolios()  // reload after refresh to show updated values
         }
     }
 
@@ -100,10 +109,10 @@ class HomeViewModel(private val db: AppDatabase) : ViewModel() {
         }
     }
 
-    class Factory(private val db: AppDatabase) : ViewModelProvider.Factory {
+    class Factory(private val db: AppDatabase, private val context: android.content.Context? = null) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            HomeViewModel(db) as T
+            HomeViewModel(db, context) as T
     }
 }
 
