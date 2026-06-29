@@ -10,6 +10,13 @@ android {
     namespace = "com.example.portfoliowatcher"
     compileSdk = 36
 
+    // Configure Compose for Kotlin 1.9.25
+    // This suppresses the "Compose Compiler plugin required" error
+    composeOptions {
+        // Use embedded Compose compiler from Kotlin 1.9.25
+        kotlinCompilerExtensionVersion = "1.5.8"
+    }
+
     defaultConfig {
         applicationId = "com.example.portfoliowatcher"
         minSdk = 24
