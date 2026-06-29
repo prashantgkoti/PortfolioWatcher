@@ -10,10 +10,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.portfoliowatcher.data.local.AppDatabase
 import com.example.portfoliowatcher.domain.model.Portfolio
+import com.example.portfoliowatcher.presentation.viewmodel.HomeViewModel
 import java.math.BigDecimal
+import java.math.RoundingMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -21,8 +27,11 @@ fun HomeScreen(
     onPortfolioClick: (String) -> Unit,
     onUploadClick: () -> Unit
 ) {
-    // Placeholder portfolios until ViewModel is wired up
-    val portfolios = remember { emptyList<Portfolio>() }
+    val context = LocalContext.current
+    val vm: HomeViewModel = viewModel(
+        factory = HomeViewModel.Factory(AppDatabase.getInstance(context))
+    )
+    val state by vm.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -35,24 +44,35 @@ fun HomeScreen(
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onUploadClick) {
-                Icon(Icons.Default.Add, contentDescription = "Upload Portfolio")
+                Icon(Icons.Default.Add, contentDescription = "Add Portfolio")
             }
         }
     ) { padding ->
         Column(modifier = Modifier.padding(padding).fillMaxSize()) {
-
-            // Summary card at top
-            SummaryCard(portfolios = portfolios)
-
-            if (portfolios.isEmpty()) {
-                EmptyState(onUploadClick = onUploadClick)
-            } else {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(portfolios) { portfolio ->
-                        PortfolioCard(
-                            portfolio = portfolio,
-                            onClick = { onPortfolioClick(portfolio.portfolioId) }
-                        )
+            when (val s = state) {
+                is HomeViewModel.UiState.Loading -> {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+                is HomeViewModel.UiState.Error -> {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(s.message, color = MaterialTheme.colorScheme.error)
+                    }
+                }
+                is HomeViewModel.UiState.Empty -> {
+                    SummaryCard(portfolios = emptyList())
+                    EmptyState(onUploadClick = onUploadClick)
+                }
+                is HomeViewModel.UiState.Success -> {
+                    SummaryCard(portfolios = s.portfolios)
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        items(s.portfolios) { portfolio ->
+                            PortfolioCard(
+                                portfolio = portfolio,
+                                onClick = { onPortfolioClick(portfolio.portfolioId) }
+                            )
+                        }
                     }
                 }
             }
@@ -62,46 +82,36 @@ fun HomeScreen(
 
 @Composable
 private fun SummaryCard(portfolios: List<Portfolio>) {
-    val totalValue = portfolios.fold(BigDecimal.ZERO) { sum, p -> sum + p.totalValue }
-    val totalInvested = portfolios.fold(BigDecimal.ZERO) { sum, p -> sum + p.totalInvestment }
+    val totalValue = portfolios.fold(BigDecimal.ZERO) { s, p -> s + p.currentTotalValue }
+    val totalInvested = portfolios.fold(BigDecimal.ZERO) { s, p -> s + p.totalInvestment }
     val totalGain = totalValue - totalInvested
+    val pct = if (totalInvested > BigDecimal.ZERO)
+        (totalGain / totalInvested * BigDecimal("100")).setScale(2, RoundingMode.HALF_UP)
+    else BigDecimal.ZERO
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        )
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+            Text("Total Portfolio Value", style = MaterialTheme.typography.labelMedium)
             Text(
-                text = "Total Portfolio Value",
-                style = MaterialTheme.typography.labelMedium
-            )
-            Text(
-                text = "₹${totalValue.toPlainString()}",
+                "₹${totalValue.setScale(2, RoundingMode.HALF_UP).toPlainString()}",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+            Spacer(Modifier.height(8.dp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Column {
                     Text("Invested", style = MaterialTheme.typography.labelSmall)
-                    Text("₹${totalInvested.toPlainString()}", fontWeight = FontWeight.SemiBold)
+                    Text("₹${totalInvested.setScale(2, RoundingMode.HALF_UP).toPlainString()}", fontWeight = FontWeight.SemiBold)
                 }
                 Column(horizontalAlignment = Alignment.End) {
-                    Text("Gain/Loss", style = MaterialTheme.typography.labelSmall)
+                    Text("Returns", style = MaterialTheme.typography.labelSmall)
                     Text(
-                        text = "₹${totalGain.toPlainString()}",
+                        "${if (pct >= BigDecimal.ZERO) "+" else ""}$pct%",
                         fontWeight = FontWeight.SemiBold,
-                        color = if (totalGain >= BigDecimal.ZERO)
-                            MaterialTheme.colorScheme.primary
-                        else
-                            MaterialTheme.colorScheme.error
+                        color = if (pct >= BigDecimal.ZERO) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                     )
                 }
             }
@@ -114,7 +124,7 @@ private fun PortfolioCard(portfolio: Portfolio, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 16.dp, vertical = 6.dp)
             .clickable { onClick() }
     ) {
         Row(
@@ -123,31 +133,20 @@ private fun PortfolioCard(portfolio: Portfolio, onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Text(
-                    text = portfolio.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    text = "${portfolio.holdingCount} funds",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Text(portfolio.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text("${portfolio.holdingCount} funds", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "₹${portfolio.currentTotalValue.toPlainString()}",
+                    "₹${portfolio.currentTotalValue.setScale(2, RoundingMode.HALF_UP).toPlainString()}",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
-                val pct = portfolio.totalGainLossPercentage
+                val pct = portfolio.totalGainLossPercentage.setScale(2, RoundingMode.HALF_UP)
                 Text(
-                    text = "${if (pct >= BigDecimal.ZERO) "+" else ""}${pct.setScale(2, java.math.RoundingMode.HALF_UP)}%",
+                    "${if (pct >= BigDecimal.ZERO) "+" else ""}$pct%",
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (pct >= BigDecimal.ZERO)
-                        MaterialTheme.colorScheme.primary
-                    else
-                        MaterialTheme.colorScheme.error
+                    color = if (pct >= BigDecimal.ZERO) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                 )
             }
         }
@@ -161,20 +160,10 @@ private fun EmptyState(onUploadClick: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = "No portfolios yet",
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "Tap + to upload your mutual fund portfolio",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-        Button(onClick = onUploadClick) {
-            Text("Upload Portfolio")
-        }
+        Text("No portfolios yet", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(Modifier.height(8.dp))
+        Text("Tap + to add your first portfolio", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(Modifier.height(24.dp))
+        Button(onClick = onUploadClick) { Text("Add Portfolio") }
     }
 }
