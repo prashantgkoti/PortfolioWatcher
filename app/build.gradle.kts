@@ -1,6 +1,7 @@
 plugins {
+    // android.application (AGP 9.2.1) has built-in Kotlin support
+    // Don't apply kotlin.android separately - it causes conflict
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
 }
