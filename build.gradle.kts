@@ -2,6 +2,8 @@
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.android) apply false
+    // Compose Compiler plugin required with Kotlin 2.0+ when compose is enabled
+    alias(libs.plugins.compose.compiler) apply false
     // KSP and Hilt must be in same scope to avoid class loader issues
     // See: https://github.com/google/dagger/issues/3965
     alias(libs.plugins.ksp) apply false
