@@ -2,8 +2,6 @@ plugins {
     // android.application (AGP 9.2.1) has built-in Kotlin support
     // Don't apply kotlin.android separately - it causes conflict
     alias(libs.plugins.android.application)
-    // Compose Compiler plugin required with Kotlin 2.0+ when compose is enabled
-    alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
 }
