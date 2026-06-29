@@ -18,11 +18,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.portfoliowatcher.data.local.dao.UserDao
-import com.example.portfoliowatcher.data.local.dao.PortfolioDao
-import com.example.portfoliowatcher.data.local.dao.HoldingDao
 import com.example.portfoliowatcher.data.local.entity.UserEntity
-import com.example.portfoliowatcher.data.local.entity.PortfolioEntity
-import com.example.portfoliowatcher.data.local.entity.HoldingEntity
+// PortfolioDao, HoldingDao, PortfolioEntity, HoldingEntity will be added in Phase 2
 
 /**
  * AppDatabase - Main database class for Portfolio Watcher
@@ -35,11 +32,8 @@ import com.example.portfoliowatcher.data.local.entity.HoldingEntity
  * TypeConverters: Helps Room convert complex types (like LocalDateTime) to/from database storage
  */
 @Database(
-    // List of all entity classes that will be created as tables
     entities = [
-        UserEntity::class,           // Table: users
-        PortfolioEntity::class,      // Table: portfolios
-        HoldingEntity::class         // Table: holdings
+        UserEntity::class            // Table: users (PortfolioEntity & HoldingEntity added in Phase 2)
     ],
     // Version 1 = initial schema
     // Increment this when you change table structure (add/remove columns, etc.)
@@ -59,16 +53,7 @@ abstract class AppDatabase : RoomDatabase() {
      * Room generates the implementation automatically
      */
     abstract fun userDao(): UserDao
-
-    /**
-     * Provide access to PortfolioDao for portfolio operations
-     */
-    abstract fun portfolioDao(): PortfolioDao
-
-    /**
-     * Provide access to HoldingDao for holding operations
-     */
-    abstract fun holdingDao(): HoldingDao
+    // portfolioDao() and holdingDao() will be added when those entities are created in Phase 2
 
     /**
      * Companion object - allows singleton pattern for database instance
